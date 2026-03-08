@@ -1,0 +1,69 @@
+Assignment name: filter
+Expected files: filter.c
+Allowed functions: read, write, strlen, memmem, memmove, malloc, calloc,
+realloc, free, printf, fprintf, stdout, stderr, perror
+--------------------------------------------------------------------------------
+
+Write a program that will take one and only one argument.
+
+Your program will then read from stdin and write all the content read in stdout
+except that every occurrence of s must be replaced by '*' (as many as the length
+of s). Your program will be tested with random buffer sizes, using a custom read
+function. Therefore the buffer being set in your program will be filled with a
+different number of chars each new call.
+
+
+For example:
+
+./filter bonjour
+will behave in the same way as:
+sed 's/bonjour/*******/g'
+
+./filter abc
+will behave in the same way as:
+sed's/abc/***/g'
+
+More generally your program must be the equivalent of the shell script filter.sh
+present in this directory (you can compare your program with it).
+
+In case of error during a read or a malloc, you must write "Error: " followed by
+the error message in stderr and return 1.
+
+If the program is called without arguments or with an empty argument or with multiple
+arguments, it must return 1.
+
+For example this should work:
+
+$> echo 'abcdefaaaabcdeabcabcdabc' | ./filter abc | cat -e
+***defaaa***de******d***$
+$> echo 'ababcabababc' | ./filter ababc | cat -e
+*****ab*****$
+$>
+
+NOTES:
+memmem includes:
+                #define _GNU_SOURCE
+			    #include <string.h>
+
+perror includes:
+                #include <errno.h>
+
+read includes:
+                #include <fcntl.h>
+
+				The  memmem()  function  finds  the  start  of  the first occurrence of the substring needle of length needlelen in the memory area
+       haystack of length haystacklen.
+
+	   The  memmove() function copies n bytes from memory area src to memory area dest.  The memory areas may overlap: copying takes place
+       as though the bytes in src are first copied into a temporary array that does not overlap src or dest, and the bytes are then copied
+       from the temporary array to dest.
+
+// Use a global variable buffer_size
+// Check that argc is == 2
+// Read stdin while read doesn't return a value inferior to 1;
+// If read == -1, use errno with perror;
+// Use memmove to copy the buffer content to a stash.
+// Everytime read returns something superior to 0, realloc the stash with the total number of bytes 
+// that has been read;
+
+// Then, use memmem to find which part of the stash content needs to be modified, then print the string
