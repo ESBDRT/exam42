@@ -6,7 +6,7 @@
 /*   By: edrouet <edrouet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/13 14:58:04 by edrouet           #+#    #+#             */
-/*   Updated: 2026/03/16 18:28:21 by edrouet          ###   ########.fr       */
+/*   Updated: 2026/03/16 18:57:51 by edrouet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+// Search for each queen position and print it to stdout
 void	print_result(char **board)
 {
 	int	i;
@@ -36,6 +37,7 @@ void	print_result(char **board)
 	return ;
 }
 
+// Allocate the board and fill it with dots
 static char	**init_board(int size)
 {
 	char	**board;
@@ -65,6 +67,7 @@ static char	**init_board(int size)
 	return (board);
 }
 
+// Check if any of the previous columns arleady has a queen (vertical attack)
 int	is_column_empty(char **board, int y, int x)
 {
 	while (y != -1)
@@ -76,6 +79,7 @@ int	is_column_empty(char **board, int y, int x)
 	return (1);
 }
 
+// Check if any of the upper diagonals has a queen (diagonal attack)
 int	is_diagonal_empty(char **board, int y, int x, int size)
 {
 	int	tmp_x;
@@ -83,13 +87,18 @@ int	is_diagonal_empty(char **board, int y, int x, int size)
 
 	tmp_y = y;
 	tmp_x = x;
+
+	// Check the upper left diagonal
 	while (tmp_y > -1 && tmp_x > -1)
 	{
 		if (board[tmp_y--][tmp_x--] == 'Q')
 			return (0);
 	}
+
 	tmp_y = y;
 	tmp_x = x;
+
+	// Check the upper right diagonal
 	while (tmp_y > -1 && tmp_x < size)
 	{
 		if (board[tmp_y--][tmp_x++] == 'Q')
@@ -102,16 +111,23 @@ int	solve(char **board, int size, int y)
 {
 	int	x;
 
+	// y == size means the board is complete
 	if (y == size)
 		return (print_result(board), 0);
+
 	x = 0;
 	while (x < size)
 	{
-		if (is_column_empty(board, y, x) && is_diagonal_empty(board, y, x,
-				size))
+		// Check if the position (x, y) is safe
+		if (is_column_empty(board, y, x) && is_diagonal_empty(board, y, x, size))
 		{
+			// Place the queen
 			board[y][x] = 'Q';
+
+			// Recursive call, try to place another queen on the next line
 			solve(board, size, y + 1);
+
+			// Backtrack and try the next index in line
 			board[y][x] = '.';
 		}
 		x++;
@@ -126,7 +142,8 @@ int	main(int argc, const char **argv)
 	int		i;
 	int		j;
 
-	if (argc != 2)
+	// Check that we have at least one arg
+	if (argc < 2)
 		return (1);
 	size = atoi(argv[1]);
 	board = init_board(size);
