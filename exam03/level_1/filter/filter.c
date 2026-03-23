@@ -6,7 +6,7 @@
 /*   By: edrouet <edrouet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/12 18:02:56 by edrouet           #+#    #+#             */
-/*   Updated: 2026/03/16 18:42:15 by edrouet          ###   ########.fr       */
+/*   Updated: 2026/03/23 12:32:08 by edrouet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	main(int argc, const char **argv)
 		return (1);
 
 	// Read STDIN while it returns at least 1
-	while ((bytes = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 1)
+	while ((bytes = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0)
 	{
 		// Realloc the stash with the total number of bytes read since the start
 		total_read += bytes;
