@@ -6,7 +6,7 @@
 /*   By: edrouet <edrouet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/13 14:58:04 by edrouet           #+#    #+#             */
-/*   Updated: 2026/03/16 18:57:51 by edrouet          ###   ########.fr       */
+/*   Updated: 2026/03/29 19:31:34 by edrouet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ static char	**init_board(int size)
 		i++;
 	}
 	board[i] = NULL;
-	i = 0;
 	return (board);
 }
 
@@ -139,8 +138,6 @@ int	main(int argc, const char **argv)
 {
 	char	**board;
 	int		size;
-	int		i;
-	int		j;
 
 	// Check that we have at least one arg
 	if (argc < 2)
