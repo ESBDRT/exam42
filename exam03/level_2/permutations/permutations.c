@@ -6,7 +6,7 @@
 /*   By: edrouet <edrouet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/24 15:04:41 by edrouet           #+#    #+#             */
-/*   Updated: 2026/03/24 15:25:33 by edrouet          ###   ########.fr       */
+/*   Updated: 2026/04/20 16:20:55 by edrouet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@
 
 int	ft_strlen(char *str)
 {
-	int	i = 0;
+	int	i;
 
+	i = 0;
 	while (str[i])
 		i++;
 	return (i);
@@ -23,8 +24,9 @@ int	ft_strlen(char *str)
 
 void	ft_putstr(char *str)
 {
-	int	i = 0;
+	int	i;
 
+	i = 0;
 	while (str[i])
 		write(1, &str[i++], 1);
 	write(1, "\n", 1);
@@ -39,35 +41,52 @@ void	ft_swap(char *str, int idx1, int idx2)
 	str[idx2] = tmp;
 }
 
+void	ft_sort_str(char *str, int len)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < len - 1)
+	{
+		j = i + 1;
+		while (j < len)
+		{
+			if (str[i] > str[j])
+				ft_swap(str, i, j);
+			j++;
+		}
+		i++;
+	}
+}
+
 void	permutations(char *str, int len, int idx)
 {
-	int	i = idx;
+	int	i;
 
+	i = idx;
 	// Print the permutation
 	if (idx == len)
 	{
 		ft_putstr(str);
 		return ;
 	}
-
+	ft_sort_str(str + idx, len - idx);
 	while (i < len)
 	{
 		ft_swap(str, i, idx);
-
 		// Recursive call
 		permutations(str, len, idx + 1);
-
 		// Backtrack
 		ft_swap(str, i, idx);
-
 		i++;
 	}
 }
 
-int main(int argc, const char **argv)
+int	main(int argc, const char **argv)
 {
-	int		len;
-	char	*str;
+	int len;
+	char *str;
 
 	if ((argc < 2) || (!argv[1]))
 		return (1);
@@ -89,7 +108,10 @@ int main(int argc, const char **argv)
 	}
 
 	else
+	{
+		ft_sort_str(str, len);
 		permutations(str, len, 0);
+	}
 
 	return (0);
 }
