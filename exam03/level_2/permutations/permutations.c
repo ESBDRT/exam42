@@ -6,7 +6,7 @@
 /*   By: edrouet <edrouet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/24 15:04:41 by edrouet           #+#    #+#             */
-/*   Updated: 2026/04/20 16:20:55 by edrouet          ###   ########.fr       */
+/*   Updated: 2026/04/22 11:15:13 by edrouet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,9 @@ void	permutations(char *str, int len, int idx)
 		ft_putstr(str);
 		return ;
 	}
+
 	ft_sort_str(str + idx, len - idx);
+
 	while (i < len)
 	{
 		ft_swap(str, i, idx);
@@ -83,35 +85,30 @@ void	permutations(char *str, int len, int idx)
 	}
 }
 
-int	main(int argc, const char **argv)
+int	main(int argc, char **argv)
 {
-	int len;
-	char *str;
+	int	len;
 
 	if ((argc < 2) || (!argv[1]))
 		return (1);
 
-	str = (char *)argv[1];
-	len = ft_strlen(str);
+	len = ft_strlen(argv[1]);
 
+	ft_sort_str(argv[1], len);
 	// Handle len 1
 	if (len == 1)
-		return (ft_putstr(str), 0);
-
+		return (ft_putstr(argv[1]), 0);
 	// Handle len 2
 	else if (len == 2)
 	{
-		ft_putstr(str);
-		ft_swap(str, 0, 1);
-		ft_putstr(str);
+		ft_putstr(argv[1]);
+		ft_swap(argv[1], 0, 1);
+		ft_putstr(argv[1]);
 		return (0);
 	}
 
 	else
-	{
-		ft_sort_str(str, len);
-		permutations(str, len, 0);
-	}
+		permutations(argv[1], len, 0);
 
 	return (0);
 }
