@@ -6,7 +6,7 @@
 /*   By: edrouet <edrouet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/24 15:04:41 by edrouet           #+#    #+#             */
-/*   Updated: 2026/04/22 11:15:13 by edrouet          ###   ########.fr       */
+/*   Updated: 2026/04/26 17:19:21 by edrouet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,10 +72,9 @@ void	permutations(char *str, int len, int idx)
 		return ;
 	}
 
-	ft_sort_str(str + idx, len - idx);
-
 	while (i < len)
 	{
+		ft_sort_str(str + idx, len - idx);
 		ft_swap(str, i, idx);
 		// Recursive call
 		permutations(str, len, idx + 1);
