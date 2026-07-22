@@ -45,10 +45,46 @@ void	exec_semicolon(char **argv, char **envp, int end)
 			exit(1);
 		}
 	}
+
 	waitpid(pid, NULL, 0);
 }
 
+int exec_pipe(char **argv, char **envp, int end, int prevfd)
+{
+    int     pipefd[2];
+    pid_t   pid;
 
+    argv[end] = NULL;
+    if (pipe(pipefd) == -1)
+        return (-1);
+
+    pid = fork();
+    if (pid == 0)
+    {
+        if (prevfd != -1)
+        {
+            dup2(prevfd, STDIN_FILENO);
+            close(prevfd);
+        }
+		
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+
+        if (execve(argv[0], argv, envp) == -1)
+        {
+            throw_error("error: cannot execute ", argv[0]);
+            exit(1);
+        }
+    }
+
+	waitpid(pid, NULL, 0);
+    // parent: close what it no longer needs
+    if (prevfd != -1)
+        close(prevfd);
+    close(pipefd[1]);
+    return (pipefd[0]); // becomes prevfd for the next command
+}
 
 int	get_cmd_end(char **argv, int start)
 {
@@ -78,6 +114,7 @@ int	main(int argc, char **argv, char **envp)
 {
 	int	i;
 	int	end;
+	int prevfd = -1;
 
 	end = 0;
 	if (argc < 2)
@@ -91,12 +128,22 @@ int	main(int argc, char **argv, char **envp)
 		{
 			end = get_cmd_end(argv, i);
 			if (argv[end] == NULL)
+			{
+				if (prevfd != -1)
+				{
+					dup2(prevfd, STDIN_FILENO);
+					close(prevfd);
+				}
 				return (exec_last_cmd(argv + i, envp), 0);
+			}
+
 			else if (argv[end][0] == ';')
+			{
 				exec_semicolon(argv + i, envp, end - i);
+				prevfd = -1;
+			}
 			else if (argv[end][0] == '|')
-				return (0);
-				// exec_pipe(argv + i, envp, end - i);
+				prevfd = exec_pipe(argv + i, envp, end - i, prevfd);
 			i = end + 1;
 		}
 	}
