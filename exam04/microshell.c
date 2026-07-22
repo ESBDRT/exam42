@@ -48,9 +48,7 @@ void	exec_semicolon(char **argv, char **envp, int end)
 	waitpid(pid, NULL, 0);
 }
 
-void	exec_pipe(void)
-{
-}
+
 
 int	get_cmd_end(char **argv, int start)
 {
@@ -97,7 +95,8 @@ int	main(int argc, char **argv, char **envp)
 			else if (argv[end][0] == ';')
 				exec_semicolon(argv + i, envp, end - i);
 			else if (argv[end][0] == '|')
-				exec_pipe();
+				return (0);
+				// exec_pipe(argv + i, envp, end - i);
 			i = end + 1;
 		}
 	}
