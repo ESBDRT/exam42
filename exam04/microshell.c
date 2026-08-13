@@ -13,15 +13,17 @@ void ft_putstr_err(char *str, char *arg)
 	write(2, "\n", 1);
 }
 
+void fatal_err()
+{
+	ft_putstr_err("error: fatal", NULL);
+	exit(1);
+}
+
 void exec(char **argv, char **envp, int i, int tmp_fd)
 {
 	argv[i] = NULL;
-	if (dup2(tmp_fd, STDIN_FILENO) == -1)
-	{
-    	ft_putstr_err("error: fatal", NULL);
-    	exit(1);
-	}
-	close(tmp_fd);
+	if (dup2(tmp_fd, STDIN_FILENO) == -1 || close(tmp_fd) == -1)
+		fatal_err();
 	execve(argv[0], argv, envp);
 	ft_putstr_err("error: cannot execute ", argv[0]);
 	exit(1);
@@ -35,16 +37,12 @@ int main(int argc, char **argv, char **envp)
 	pid_t pid;
 	(void)argc;
 
-	i = 0;
-
 	// On sauvegarde le STDIN de base
 	tmp_fd = dup(STDIN_FILENO);
 	if (tmp_fd == -1)
-	{
-	    ft_putstr_err("error: fatal", NULL);
-	    exit(1);
-	}
+		fatal_err();
 
+	i = 0;
 	while (argv[i] && argv[i + 1])
 	{
 		// Reset argv
@@ -72,22 +70,17 @@ int main(int argc, char **argv, char **envp)
 			if (pid == 0)
 				exec(argv, envp, i, tmp_fd);
 			else if (pid == -1)
-			{
-				ft_putstr_err("error: fatal", NULL);
-    			exit(1);
-			}
+				fatal_err();
 
 			// Parent process
 			else 
 			{
-				close(tmp_fd);
-				while (waitpid(-1, NULL, WUNTRACED) != -1);
+				if (close(tmp_fd) == -1)
+					fatal_err();
+				while (waitpid(-1, NULL, 0) > 0);
 				tmp_fd = dup(STDIN_FILENO);
 				if (tmp_fd == -1)
-				{
-				    ft_putstr_err("error: fatal", NULL);
-				    exit(1);
-				}
+					fatal_err();
 			}
 		}
 
@@ -96,39 +89,28 @@ int main(int argc, char **argv, char **envp)
 		{
 
 			if (pipe(fd) == -1)
-			{
-		    	ft_putstr_err("error: fatal", NULL);
-		    	exit(1);
-			}
-
+				fatal_err();
 			// Child process
 			pid = fork();
 			if (pid == 0)
 			{
-				if (dup2(fd[1], STDOUT_FILENO) == -1)
-				{
-				    ft_putstr_err("error: fatal", NULL);
-				    exit(1);
-				}
-				close(fd[0]);
-				close(fd[1]);
+				if (dup2(fd[1], STDOUT_FILENO) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1)
+					fatal_err();
 				exec(argv, envp, i, tmp_fd);
 			}
 			else if (pid == -1)
-			{
-				ft_putstr_err("error: fatal", NULL);
-    			exit(1);
-			}
+				fatal_err();
 
 			// Parent process
 			else 
 			{
-				close(fd[1]);
-				close(tmp_fd);
+				if (close(fd[1]) == -1 || close(tmp_fd) == -1)
+					fatal_err();
 				tmp_fd = fd[0];
 			}
 		}
 	}
-	close(tmp_fd);
+	if (close(tmp_fd) == -1)
+		fatal_err();
 	return (0);
 }
