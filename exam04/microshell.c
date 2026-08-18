@@ -35,7 +35,9 @@ int main(int argc, char **argv, char **envp)
 	int fd[2];
 	int tmp_fd;
 	pid_t pid;
-	(void)argc;
+	
+	if (argc < 2)
+		return (0);
 
 	// On sauvegarde le STDIN de base
 	tmp_fd = dup(STDIN_FILENO);
@@ -65,22 +67,25 @@ int main(int argc, char **argv, char **envp)
 		// Exec semi colon ou derniere commande
 		else if ((i != 0 && argv[i] == NULL) || strcmp(argv[i], ";") == 0)
 		{
-			// Child process qui exec
-			pid = fork();
-			if (pid == 0)
-				exec(argv, envp, i, tmp_fd);
-			else if (pid == -1)
-				fatal_err();
-
-			// Parent process
-			else 
+			if (i != 0)
 			{
-				if (close(tmp_fd) == -1)
+				// Child process qui exec
+				pid = fork();
+				if (pid == 0)
+					exec(argv, envp, i, tmp_fd);
+				else if (pid == -1)
 					fatal_err();
-				while (waitpid(-1, NULL, 0) > 0);
-				tmp_fd = dup(STDIN_FILENO);
-				if (tmp_fd == -1)
-					fatal_err();
+	
+				// Parent process
+				else 
+				{
+					if (close(tmp_fd) == -1)
+						fatal_err();
+					while (waitpid(-1, NULL, 0) > 0);	
+					tmp_fd = dup(STDIN_FILENO);
+					if (tmp_fd == -1)
+						fatal_err();
+				}
 			}
 		}
 
@@ -88,12 +93,15 @@ int main(int argc, char **argv, char **envp)
 		else if (i != 0 && strcmp(argv[i], "|") == 0)
 		{
 
+			// On cree FD dans le main process
 			if (pipe(fd) == -1)
 				fatal_err();
 			// Child process
 			pid = fork();
 			if (pid == 0)
 			{
+				// Ici on est dans le child, et on redirige le stdout du child process au fd[1] du main.
+				// On peut close ensuite les autres puisque ils sont herites.
 				if (dup2(fd[1], STDOUT_FILENO) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1)
 					fatal_err();
 				exec(argv, envp, i, tmp_fd);
