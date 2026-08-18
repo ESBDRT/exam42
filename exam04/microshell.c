@@ -100,7 +100,7 @@ int main(int argc, char **argv, char **envp)
 			pid = fork();
 			if (pid == 0)
 			{
-				// Ici on est dans le child, et on redirige le stdout du child process au fd[1] du main.
+				// Ici on est dans le child, et on redirige le stdout du child process au stdout de la pipe.
 				// On peut close ensuite les autres puisque ils sont herites.
 				if (dup2(fd[1], STDOUT_FILENO) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1)
 					fatal_err();
