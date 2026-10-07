@@ -1,2 +1,2 @@
 all:
-	cc -Wextra -Wall -Werror main.c
+	cc -Wextra -Wall -Werror main.c -g3
