@@ -1,45 +1,60 @@
 #include "life.h"
 
+void draw_check(t_game *game)
+{
+    if (game->draw)
+        game->map[game->i][game->j] = game->alive;
+}
+
 int read_input(t_game *game)
 {
     char buf;
-    bool err = false;
-    int i = 0, j = 0;
 
     while (read(STDIN_FILENO, &buf, 1) == 1)
     {
         switch (buf)
         {
         case 'w':
-            if (i > 0)
-                i--;
+            if (game->i > 0){
+                game->i--;
+                draw_check(game);
+            }
             break;
         
         case 'a':
-            if (j > 0)
-                j--;
+            if (game->j > 0){
+                game->j--;
+                draw_check(game);
+            }
             break;
 
         case 's':
-            if (i < game->height - 1)
-                i++;
+            if (game->i < game->height - 1){
+                game->i++;
+                draw_check(game);
+            }
             break;
         
         case 'd':
-            if (j < game->width - 1)
-                j++;
+            if (game->j < game->width - 1){
+                game->j++;
+                draw_check(game);
+            }
             break;
 
         case 'x':
-            game->map[i][j] = game->alive;
+            if (!game->draw)
+                game->draw = true;
+            else
+                game->draw = false;
             break;
         
         default:
-            err = true;
+            game->err = true;
             break;
         }
 
-        if (err)
+        if (game->err)
             return (1);
     }
 
@@ -86,6 +101,10 @@ int init_game(t_game *game, const char **argv)
     game->height = atoi(argv[2]);
     game->iterations = atoi(argv[3]);
     game->map = get_base_map(game);
+    game->i = 0;
+    game->j = 0;
+    game->err = false;
+    game->draw = false;
     
     return (read_input(game), game->width < 0 || game->height < 0 || game->iterations < 0 || !game->map ? 1 : 0);
 }

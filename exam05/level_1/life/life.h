@@ -6,10 +6,18 @@
 #include <stdbool.h>
 
 typedef struct s_game {
+    
     char **map;
+    char alive;
+    char dead;
+
     int  width;
     int  height;
     int  iterations;
-    char alive;
-    char dead;
+
+    bool draw;
+    bool err;
+
+    int i;
+    int j;
 }              t_game;
