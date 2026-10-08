@@ -6,6 +6,90 @@ void draw_check(t_game *game)
         game->map[game->i][game->j] = game->alive;
 }
 
+char **get_base_map(t_game *game)
+{
+    char **map = malloc((game->height + 1) * sizeof(char *));
+    if (!map)
+        return (NULL);
+
+    for (int i = 0; i < game->height; i++)
+    {
+        map[i] = malloc(game->width * sizeof(char ) + 1);
+        if (!map[i])
+            return (NULL);
+
+        for (int j = 0; j < game->width; j++)
+            map[i][j] = game->dead;
+
+        map[i][game->width] = '\0';
+    }
+
+    map[game->height] = NULL;
+    return (map);
+}
+
+int count_neighbors(t_game *game, int row, int col)
+{
+    int row_off;
+    int col_off;
+    int nrow;
+    int ncol;
+    int count;
+
+    count = 0;
+        
+    // Visit the 3 rows around the cell: above, same row, and below.
+    for (row_off = -1; row_off <= 1; row_off++)
+    {
+        // In each row, visit the 3 columns: left, same column, and right.
+        for (col_off = -1; col_off <= 1; col_off++)
+        {
+
+            // Skip the cell itself; it is not its own neighbor.
+            if (row_off == 0 && col_off == 0)
+                continue;
+
+            // Turn the offsets into the neighbor's board coordinates
+            nrow = row + row_off;
+            ncol = col + col_off;
+            if (nrow >= 0 && nrow < game->height && ncol >= 0 && ncol < game->width && game->map[nrow][ncol] == game->alive)
+                count++;
+        }
+    }
+    return (count);
+}
+
+int play(t_game *game)
+{
+    int neighbors;
+    char **map_tmp;
+
+    map_tmp = get_base_map(game);
+    if (!map_tmp)
+        return (1);
+
+    for (int i = 0; i < game->height; i++)
+    {
+        for (int j = 0; j < game->width; j++)
+        {
+            neighbors = count_neighbors(game, i, j);
+            if (game->map[i][j] == game->alive)
+            {
+                if (neighbors == 2 || neighbors == 3)
+                    map_tmp[i][j] = game->alive;
+                else
+                    map_tmp[i][j] = game->dead;
+            }
+            else
+                if (neighbors == 3)
+                    map_tmp[i][j] = game->alive;
+        }
+    }
+
+    game->map = map_tmp;
+    return (0);
+}
+
 int read_input(t_game *game)
 {
     char buf;
@@ -43,8 +127,10 @@ int read_input(t_game *game)
             break;
 
         case 'x':
-            if (!game->draw)
+            if (!game->draw){
                 game->draw = true;
+                draw_check(game);
+            }
             else
                 game->draw = false;
             break;
@@ -60,28 +146,6 @@ int read_input(t_game *game)
 
     return (0);
 
-}
-
-char **get_base_map(t_game *game)
-{
-    char **map = malloc((game->height + 1) * sizeof(char *));
-    if (!map)
-        return (NULL);
-
-    for (int i = 0; i < game->height; i++)
-    {
-        map[i] = malloc(game->width * sizeof(char ) + 1);
-        if (!map[i])
-            return (NULL);
-
-        for (int j = 0; j < game->width; j++)
-            map[i][j] = game->dead;
-
-        map[i][game->width] = '\0';
-    }
-
-    map[game->height] = NULL;
-    return (map);
 }
 
 void print_map(t_game *game)
@@ -116,6 +180,12 @@ int main(int argc, const char **argv)
     if (argc != 4 || init_game(&game, argv))
         return (1);
 
-    print_map(&game);
+    for (int i = 0; i < game.iterations; i++)
+    {
+        if (play(&game))
+            return (1);
+    }
     
+    print_map(&game);
+    return (0);
 }
