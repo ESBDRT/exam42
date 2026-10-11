@@ -50,3 +50,13 @@ $> echo 'dxss' | ./a.out 3 3 2 | cat -e
 O $
 O $
 O $
+
+
+GAME OF LIFE RULES
+
+If the cell is alive:
+    if it has 2 or 3 neighbors, it stays alive
+    else, it dies 
+
+If the cell is dead
+    if it has 3 neighbors, it becomes alive
